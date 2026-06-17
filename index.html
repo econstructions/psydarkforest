@@ -1,426 +1,366 @@
-react
-import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Menu, X, Calendar, MessageSquare, Image as ImageIcon, 
-  Send, Plus, MapPin, Clock, Zap, ChevronRight 
-} from 'lucide-react';
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dark Forest Gathering</title>
+  
+  <!-- Εισαγωγή Tailwind CSS για την εμφάνιση -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Εισαγωγή React & ReactDOM -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  
+  <!-- Εισαγωγή Babel για να καταλαβαίνει ο browser τον κώδικα JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-// --- MOCK DATA ---
-const INITIAL_EVENTS = [
-  {
-    id: 1,
-    title: "Ritual of the Ancients vol.3",
-    date: "2026-07-25",
-    location: "Μυστική Τοποθεσία, Πάρνηθα",
-    image: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=800",
-    description: "150+ BPM, Darkpsy, Forest. Το stage θα στηθεί βαθιά στο δάσος."
-  },
-  {
-    id: 2,
-    title: "Mycelium Network Gathering",
-    date: "2026-08-12",
-    location: "Βόρεια Εύβοια",
-    image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=800",
-    description: "Ένα τριήμερο ταξίδι. Φέρτε τις σκηνές σας και σεβαστείτε το περιβάλλον."
-  }
-];
+  <style>
+    body { margin: 0; background-color: #050a07; }
+    /* Scrollbar styling */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #3b0764; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #581c87; }
+  </style>
+</head>
+<body class="text-gray-100 font-sans selection:bg-green-500 selection:text-black">
+  <div id="root"></div>
 
-const INITIAL_POSTS = [
-  { id: 1, author: "PsyAlien", text: "Ψάχνω θέση σε αμάξι για το Ritual of the Ancients από κέντρο Αθήνας. Συμμετέχω στα έξοδα βενζίνης!", time: "Πριν 2 ώρες" },
-  { id: 2, author: "ForestTroll", text: "Τι κομματάρες έπαιξε ο main DJ στο προηγούμενο πάρτι; Έχουμε tracklist;", time: "Πριν 5 ώρες" },
-  { id: 3, author: "Admin", text: "Προσοχή: Μην αφήνετε σκουπίδια στο δάσος. Leave no trace!", time: "Χθες", isAdmin: true }
-];
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
 
-// --- COMPONENTS ---
+    // --- MOCK ICONS (Αντικατάσταση των Lucide Icons με emojis/σύμβολα για αυτονομία) ---
+    const Menu = () => <span className="text-2xl">☰</span>;
+    const X = () => <span className="text-xl">✖</span>;
+    const Calendar = () => <span>📅</span>;
+    const MessageSquare = () => <span>💬</span>;
+    const ImageIcon = () => <span className="text-2xl">🖼️</span>;
+    const Send = () => <span>➤</span>;
+    const Plus = () => <span>➕</span>;
+    const MapPin = () => <span>📍</span>;
+    const Clock = () => <span>🕒</span>;
+    const Zap = () => <span>⚡</span>;
+    const ChevronRight = () => <span>❯</span>;
+    const Heart = () => <span>❤️</span>;
+    const MessageCircle = () => <span>🗨️</span>;
+    const Trash2 = () => <span>🗑️</span>;
+    const ShieldAlert = () => <span>🛡️</span>;
+    const Upload = () => <span className="text-2xl">📤</span>;
 
-const Background = () => (
-  <div className="fixed inset-0 z-[-1] bg-black overflow-hidden pointer-events-none">
-    {/* Ψυχεδελικά Glowing Orbs */}
-    <div className="absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-purple-900/20 blur-[120px] animate-pulse"></div>
-    <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-green-900/10 blur-[100px] animate-pulse" style={{ animationDelay: '2s' }}></div>
-    <div className="absolute top-[40%] left-[30%] w-[30vw] h-[30vw] rounded-full bg-emerald-800/10 blur-[80px] animate-pulse" style={{ animationDelay: '4s' }}></div>
-    {/* Overlay για υφή (noise/grid) θα μπορούσε να μπει εδώ */}
-    <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjMDAwIiBmaWxsLW9wYWNpdHk9IjAiLz4KPHBhdGggZD0iTTAgMEg0VjRIME0wIDBINFY0SDBaIiBmaWxsPSIjMTExIiBmaWxsLW9wYWNpdHk9IjAuNSIvPgo8L3N2Zz4=')] opacity-20"></div>
-  </div>
-);
+    // --- CUSTOM HOOK FOR LOCAL STORAGE ---
+    function useLocalStorage(key, initialValue) {
+      const [storedValue, setStoredValue] = useState(() => {
+        try {
+          const item = window.localStorage.getItem(key);
+          return item ? JSON.parse(item) : initialValue;
+        } catch (error) {
+          console.error(error);
+          return initialValue;
+        }
+      });
 
-const Navbar = ({ currentView, setCurrentView }) => {
-  const [isOpen, setIsOpen] = useState(false);
+      const setValue = (value) => {
+        try {
+          const valueToStore = value instanceof Function ? value(storedValue) : value;
+          setStoredValue(valueToStore);
+          window.localStorage.setItem(key, JSON.stringify(valueToStore));
+        } catch (error) {
+          console.error(error);
+        }
+      };
+      return [storedValue, setValue];
+    }
 
-  const navItems = [
-    { id: 'home', label: 'Αρχική', icon: Zap },
-    { id: 'events', label: 'Events & Flyers', icon: Calendar },
-    { id: 'community', label: 'Κοινότητα', icon: MessageSquare }
-  ];
+    // --- MOCK INITIAL DATA ---
+    const INITIAL_EVENTS = [
+      {
+        id: 1,
+        title: "Ritual of the Ancients vol.3",
+        date: "2026-07-25",
+        location: "Μυστική Τοποθεσία, Πάρνηθα",
+        image: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=800",
+        description: "150+ BPM, Darkpsy, Forest. Το stage θα στηθεί βαθιά στο δάσος. Φέρτε τα δικά σας σκουπιδιάρικα, αφήνουμε τον χώρο καθαρό."
+      }
+    ];
 
-  return (
-    <nav className="sticky top-0 z-50 bg-black/60 backdrop-blur-md border-b border-green-500/20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex-shrink-0 cursor-pointer" onClick={() => setCurrentView('home')}>
-            <span className="text-2xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-purple-500 uppercase">
-              Dark Forest
-            </span>
-          </div>
-          
-          <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-8">
-              {navItems.map(item => {
-                const Icon = item.icon;
-                const isActive = currentView === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => setCurrentView(item.id)}
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 ${
-                      isActive 
-                        ? 'text-green-400 bg-green-900/20 shadow-[0_0_15px_rgba(74,222,128,0.1)]' 
-                        : 'text-gray-300 hover:text-white hover:bg-white/5'
-                    }`}
-                  >
-                    <Icon size={18} />
-                    <span>{item.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+    const INITIAL_POSTS = [
+      { 
+        id: 1, 
+        author: "PsyAlien", 
+        text: "Ψάχνω θέση σε αμάξι για το Ritual of the Ancients από κέντρο Αθήνας. Συμμετέχω στα έξοδα βενζίνης!", 
+        time: new Date(Date.now() - 7200000).toISOString(),
+        likes: 3,
+        comments: [] 
+      }
+    ];
 
-          <div className="md:hidden">
-            <button onClick={() => setIsOpen(!isOpen)} className="text-gray-300 hover:text-white p-2">
-              {isOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-          </div>
-        </div>
+    // --- COMPONENTS ---
+    const Background = () => (
+      <div className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-purple-900/10 blur-[120px]"></div>
+        <div className="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-green-900/10 blur-[150px]"></div>
+        <div className="absolute top-[30%] left-[40%] w-[40vw] h-[40vw] rounded-full bg-emerald-900/10 blur-[100px]"></div>
+        <div className="absolute inset-0 opacity-[0.03]" style={{backgroundImage: `linear-gradient(#39ff14 1px, transparent 1px), linear-gradient(90deg, #39ff14 1px, transparent 1px)`, backgroundSize: '40px 40px'}}></div>
       </div>
+    );
 
-      {/* Mobile Menu */}
-      {isOpen && (
-        <div className="md:hidden bg-black/95 backdrop-blur-lg border-b border-green-500/20">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            {navItems.map(item => {
-              const Icon = item.icon;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setCurrentView(item.id);
-                    setIsOpen(false);
-                  }}
-                  className={`w-full flex items-center space-x-3 px-3 py-4 rounded-md text-base font-medium ${
-                    currentView === item.id ? 'text-green-400 bg-green-900/20' : 'text-gray-300'
-                  }`}
-                >
-                  <Icon size={20} />
-                  <span>{item.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-    </nav>
-  );
-};
+    const Navbar = ({ currentView, setCurrentView, isAdmin, setIsAdmin }) => {
+      const [isOpen, setIsOpen] = useState(false);
+      const navItems = [
+        { id: 'home', label: 'Αρχική', icon: Zap },
+        { id: 'events', label: 'Events & Flyers', icon: Calendar },
+        { id: 'community', label: 'Κοινότητα', icon: MessageSquare }
+      ];
 
-const ChatWidget = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState([
-    { id: 1, text: "Καλωσήρθες στο δάσος. Πώς μπορούμε να βοηθήσουμε;", sender: "admin" }
-  ]);
-  const [inputValue, setInputValue] = useState("");
-  const messagesEndRef = useRef(null);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    if (isOpen) scrollToBottom();
-  }, [messages, isOpen]);
-
-  const handleSend = (e) => {
-    e.preventDefault();
-    if (!inputValue.trim()) return;
-
-    const newMsg = { id: Date.now(), text: inputValue, sender: "user" };
-    setMessages(prev => [...prev, newMsg]);
-    setInputValue("");
-
-    // Προσομοίωση απάντησης Admin μετά από 1 δευτερόλεπτο
-    setTimeout(() => {
-      setMessages(prev => [...prev, {
-        id: Date.now(),
-        text: "Οι admins στήνουν τα ηχεία αυτή τη στιγμή. Θα λάβεις απάντηση σύντομα! 👽",
-        sender: "admin"
-      }]);
-    }, 1500);
-  };
-
-  return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end">
-      {isOpen && (
-        <div className="bg-gray-900/90 backdrop-blur-xl border border-purple-500/30 rounded-2xl w-80 sm:w-96 h-[400px] mb-4 flex flex-col shadow-[0_0_30px_rgba(168,85,247,0.15)] overflow-hidden">
-          <div className="bg-gradient-to-r from-purple-900/50 to-black p-4 border-b border-purple-500/20 flex justify-between items-center">
-            <h3 className="text-white font-bold flex items-center space-x-2">
-              <Zap className="text-purple-400" size={18} />
-              <span>Επικοινωνία με Crew</span>
-            </h3>
-            <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-white">
-              <X size={20} />
-            </button>
-          </div>
-          
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {messages.map(msg => (
-              <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${
-                  msg.sender === 'user' 
-                    ? 'bg-purple-600 text-white rounded-br-sm' 
-                    : 'bg-gray-800 border border-gray-700 text-gray-200 rounded-bl-sm'
-                }`}>
-                  {msg.text}
+      return (
+        <nav className="sticky top-0 z-50 bg-[#020503]/80 backdrop-blur-xl border-b border-green-900/50 shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-20">
+              <div className="flex-shrink-0 cursor-pointer group" onClick={() => setCurrentView('home')}>
+                <span className="text-2xl sm:text-3xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-emerald-500 to-purple-500 uppercase drop-shadow-[0_0_10px_rgba(57,255,20,0.3)]">
+                  Dark Forest
+                </span>
+              </div>
+              <div className="hidden md:block">
+                <div className="ml-10 flex items-center space-x-6">
+                  {navItems.map(item => {
+                    const Icon = item.icon;
+                    return (
+                      <button key={item.id} onClick={() => setCurrentView(item.id)} className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${currentView === item.id ? 'text-green-400 bg-green-900/20 shadow-[0_0_20px_rgba(74,222,128,0.15)] border border-green-500/30' : 'text-gray-400 hover:text-white hover:bg-white/5 border border-transparent'}`}>
+                        <Icon /><span>{item.label}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
-            ))}
-            <div ref={messagesEndRef} />
+              <div className="md:hidden">
+                <button onClick={() => setIsOpen(!isOpen)} className="text-green-400 hover:text-white p-2">
+                  {isOpen ? <X /> : <Menu />}
+                </button>
+              </div>
+            </div>
           </div>
-
-          <form onSubmit={handleSend} className="p-3 bg-black/50 border-t border-purple-500/20 flex space-x-2">
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Στείλε μήνυμα..."
-              className="flex-1 bg-gray-800 text-white border border-gray-700 rounded-full px-4 py-2 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
-            />
-            <button 
-              type="submit" 
-              className="bg-purple-600 hover:bg-purple-500 text-white rounded-full p-2 w-10 h-10 flex items-center justify-center transition-colors"
-            >
-              <Send size={18} className="ml-1" />
-            </button>
-          </form>
-        </div>
-      )}
-
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className={`w-14 h-14 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(168,85,247,0.4)] transition-transform hover:scale-110 ${
-          isOpen ? 'bg-gray-800 text-white' : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white'
-        }`}
-      >
-        {isOpen ? <X size={24} /> : <MessageSquare size={24} />}
-      </button>
-    </div>
-  );
-};
-
-export default function App() {
-  const [currentView, setCurrentView] = useState('home');
-  const [events, setEvents] = useState(INITIAL_EVENTS);
-  const [posts, setPosts] = useState(INITIAL_POSTS);
-
-  // Home View
-  const HomeView = () => (
-    <div className="flex flex-col items-center justify-center min-h-[80vh] text-center px-4 animate-fade-in">
-      <div className="mb-8 relative">
-        <div className="absolute inset-0 bg-green-500/20 blur-[100px] rounded-full"></div>
-        <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-white drop-shadow-lg uppercase relative z-10">
-          Enter The <br/>
-          <span className="text-transparent bg-clip-text bg-gradient-to-b from-green-400 to-emerald-700">
-            Dark Forest
-          </span>
-        </h1>
-      </div>
-      <p className="max-w-2xl text-lg md:text-xl text-gray-300 mb-10 leading-relaxed">
-        Ένα underground δίκτυο αφιερωμένο στον ψυχεδελικό ήχο. 
-        Από τα σκοτεινά vibes της Forest μέχρι τα γρήγορα bpm της Darkpsy. 
-        Εδώ μοιραζόμαστε τις τοποθεσίες, την τέχνη και την ενέργεια.
-      </p>
-      <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6">
-        <button 
-          onClick={() => setCurrentView('events')}
-          className="px-8 py-4 bg-green-600 hover:bg-green-500 text-black font-bold rounded-lg transition-all shadow-[0_0_20px_rgba(34,197,94,0.3)] hover:shadow-[0_0_30px_rgba(34,197,94,0.5)] flex items-center justify-center space-x-2"
-        >
-          <span>Προσεχή Πάρτι</span>
-          <ChevronRight size={20} />
-        </button>
-        <button 
-          onClick={() => setCurrentView('community')}
-          className="px-8 py-4 bg-transparent border border-purple-500/50 hover:bg-purple-900/30 text-white font-bold rounded-lg transition-all flex items-center justify-center space-x-2"
-        >
-          <span>Κοινότητα</span>
-        </button>
-      </div>
-    </div>
-  );
-
-  // Events View
-  const EventsView = () => {
-    const [showForm, setShowForm] = useState(false);
-    const [newEvent, setNewEvent] = useState({ title: '', date: '', location: '', description: '' });
-
-    const handleAddEvent = (e) => {
-      e.preventDefault();
-      const eventToAdd = {
-        id: Date.now(),
-        ...newEvent,
-        // Default εικόνα για νέα events
-        image: "https://images.unsplash.com/photo-1549834125-82d3c48159a3?auto=format&fit=crop&q=80&w=800"
-      };
-      setEvents([eventToAdd, ...events]);
-      setShowForm(false);
-      setNewEvent({ title: '', date: '', location: '', description: '' });
+          {isOpen && (
+            <div className="md:hidden bg-[#020503]/95 backdrop-blur-3xl border-b border-green-900/50 absolute w-full">
+              <div className="px-4 pt-2 pb-6 space-y-2">
+                {navItems.map(item => {
+                  const Icon = item.icon;
+                  return (
+                    <button key={item.id} onClick={() => { setCurrentView(item.id); setIsOpen(false); }} className={`w-full flex items-center space-x-3 px-4 py-4 rounded-xl text-lg font-bold ${currentView === item.id ? 'text-green-400 bg-green-900/20 border border-green-500/30' : 'text-gray-400 border border-transparent'}`}>
+                      <Icon /><span>{item.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </nav>
+      );
     };
 
-    return (
-      <div className="py-10 px-4 max-w-7xl mx-auto animate-fade-in">
-        <div className="flex justify-between items-center mb-10">
-          <h2 className="text-3xl font-bold text-white border-l-4 border-green-500 pl-4">Events & Flyers</h2>
-          <button 
-            onClick={() => setShowForm(!showForm)}
-            className="bg-green-900/50 hover:bg-green-800 text-green-400 border border-green-500/50 px-4 py-2 rounded-md flex items-center space-x-2 transition-colors"
-          >
-            {showForm ? <X size={20} /> : <Plus size={20} />}
-            <span className="hidden sm:inline">{showForm ? 'Ακύρωση' : 'Προσθήκη Flyer'}</span>
+    const ChatWidget = ({ isAdmin }) => {
+      const [isOpen, setIsOpen] = useState(false);
+      const [messages, setMessages] = useLocalStorage('df_chat_messages', [
+        { id: 1, text: "Καλωσήρθες στο δάσος! Εδώ μπορείς να μιλήσεις απευθείας με το crew.", sender: "admin", timestamp: new Date().toISOString() }
+      ]);
+      const [inputValue, setInputValue] = useState("");
+      const messagesEndRef = useRef(null);
+
+      useEffect(() => { if (isOpen) messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, isOpen]);
+
+      const handleSend = (e) => {
+        e.preventDefault();
+        if (!inputValue.trim()) return;
+        setMessages(prev => [...prev, { id: Date.now(), text: inputValue, sender: isAdmin ? "admin" : "user", timestamp: new Date().toISOString() }]);
+        setInputValue("");
+        if (!isAdmin) {
+          setTimeout(() => {
+            setMessages(prev => [...prev, { id: Date.now(), text: "Λάβαμε το μήνυμά σου. Οι admins θα σου απαντήσουν σύντομα! 👽", sender: "admin", timestamp: new Date().toISOString() }]);
+          }, 2000);
+        }
+      };
+
+      return (
+        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+          {isOpen && (
+            <div className="bg-[#0a0a0a] border border-purple-500/40 rounded-2xl w-[90vw] sm:w-[400px] h-[500px] mb-4 flex flex-col shadow-[0_0_40px_rgba(168,85,247,0.2)]">
+              <div className="bg-gradient-to-r from-purple-900/80 to-[#050505] p-4 border-b border-purple-500/30 flex justify-between items-center">
+                <h3 className="text-white font-bold flex items-center space-x-2"><Zap /><span>{isAdmin ? 'Admin Chat Box' : 'Επικοινωνία με Crew'}</span></h3>
+                <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-white bg-white/5 rounded-full p-1"><X /></button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                {messages.map(msg => {
+                  const isMe = (isAdmin && msg.sender === 'admin') || (!isAdmin && msg.sender === 'user');
+                  return (
+                    <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
+                      <span className="text-[10px] text-gray-500 mb-1 px-1">
+                        {msg.sender === 'admin' ? 'Crew' : 'Επισκέπτης'} • {new Date(msg.timestamp).toLocaleTimeString('el-GR', {hour: '2-digit', minute:'2-digit'})}
+                      </span>
+                      <div className={`max-w-[85%] p-3 rounded-2xl text-sm shadow-lg ${msg.sender === 'admin' ? 'bg-purple-900/80 text-purple-50 border border-purple-500/50 rounded-tl-sm' : 'bg-green-900/30 text-green-50 border border-green-500/30 rounded-tr-sm'}`}>
+                        {msg.text}
+                      </div>
+                    </div>
+                  )
+                })}
+                <div ref={messagesEndRef} />
+              </div>
+              <form onSubmit={handleSend} className="p-4 bg-[#050505] border-t border-purple-500/30 flex space-x-2">
+                <input type="text" value={inputValue} onChange={(e) => setInputValue(e.target.value)} placeholder={isAdmin ? "Απάντηση ως Admin..." : "Στείλε μήνυμα..."} className="flex-1 bg-[#111] text-white border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:border-purple-500" />
+                <button type="submit" className={`text-white rounded-xl px-4 flex items-center justify-center ${inputValue.trim() ? 'bg-purple-600 hover:bg-purple-500' : 'bg-gray-800'}`}><Send /></button>
+              </form>
+            </div>
+          )}
+          <button onClick={() => setIsOpen(!isOpen)} className={`w-16 h-16 rounded-full flex items-center justify-center text-2xl shadow-[0_0_30px_rgba(168,85,247,0.5)] transition-all ${isOpen ? 'bg-gray-800 text-white' : 'bg-gradient-to-br from-purple-600 to-indigo-800 text-white'}`}>
+            {isOpen ? <X /> : <MessageSquare />}
           </button>
         </div>
-
-        {/* Φόρμα Προσθήκης (Εμφανίζεται υπό συνθήκη) */}
-        {showForm && (
-          <div className="bg-gray-900/80 backdrop-blur-md border border-green-500/30 p-6 rounded-xl mb-10 shadow-[0_0_30px_rgba(34,197,94,0.1)]">
-            <h3 className="text-xl font-bold text-white mb-4">Ανέβασε το Event σου</h3>
-            <form onSubmit={handleAddEvent} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input required type="text" placeholder="Τίτλος Party" className="bg-black/50 border border-gray-700 text-white rounded p-3 focus:border-green-500 outline-none" 
-                  value={newEvent.title} onChange={e => setNewEvent({...newEvent, title: e.target.value})} />
-                <input required type="date" className="bg-black/50 border border-gray-700 text-white rounded p-3 focus:border-green-500 outline-none"
-                  value={newEvent.date} onChange={e => setNewEvent({...newEvent, date: e.target.value})} />
-              </div>
-              <input required type="text" placeholder="Τοποθεσία" className="w-full bg-black/50 border border-gray-700 text-white rounded p-3 focus:border-green-500 outline-none"
-                value={newEvent.location} onChange={e => setNewEvent({...newEvent, location: e.target.value})} />
-              <textarea required placeholder="Line up / Περιγραφή / Οδηγίες..." className="w-full bg-black/50 border border-gray-700 text-white rounded p-3 focus:border-green-500 outline-none h-24"
-                value={newEvent.description} onChange={e => setNewEvent({...newEvent, description: e.target.value})}></textarea>
-              <button type="submit" className="w-full bg-green-600 hover:bg-green-500 text-black font-bold py-3 rounded transition-colors flex justify-center items-center space-x-2">
-                <ImageIcon size={20} />
-                <span>Δημοσίευση Event</span>
-              </button>
-            </form>
-          </div>
-        )}
-
-        {/* Grid με τα Flyers */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {events.map(event => (
-            <div key={event.id} className="bg-gray-900/60 border border-gray-800 rounded-xl overflow-hidden hover:border-green-500/50 transition-colors group">
-              <div className="relative h-64 overflow-hidden">
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10"></div>
-                <img src={event.image} alt={event.title} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" />
-                <div className="absolute top-4 right-4 z-20 bg-black/80 backdrop-blur-sm text-green-400 px-3 py-1 rounded-full border border-green-500/30 font-mono text-sm flex items-center space-x-2">
-                  <Calendar size={14} />
-                  <span>{event.date}</span>
-                </div>
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-white mb-2">{event.title}</h3>
-                <div className="flex items-center text-gray-400 mb-4 text-sm">
-                  <MapPin size={16} className="mr-1" />
-                  <span>{event.location}</span>
-                </div>
-                <p className="text-gray-400 text-sm">{event.description}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  };
-
-  // Community / Posts View
-  const CommunityView = () => {
-    const [newPostText, setNewPostText] = useState('');
-
-    const handleCreatePost = (e) => {
-      e.preventDefault();
-      if (!newPostText.trim()) return;
-      const newPost = {
-        id: Date.now(),
-        author: "Anonymous Freak",
-        text: newPostText,
-        time: "Μόλις τώρα"
-      };
-      setPosts([newPost, ...posts]);
-      setNewPostText('');
+      );
     };
 
-    return (
-      <div className="py-10 px-4 max-w-4xl mx-auto animate-fade-in">
-        <h2 className="text-3xl font-bold text-white border-l-4 border-purple-500 pl-4 mb-8">Dark Forest Board</h2>
-        
-        {/* Create Post Area */}
-        <div className="bg-gray-900/60 border border-purple-500/20 rounded-xl p-4 mb-8">
-          <form onSubmit={handleCreatePost}>
-            <textarea 
-              className="w-full bg-black/40 border border-gray-700 rounded-lg p-4 text-white focus:outline-none focus:border-purple-500 resize-none min-h-[100px]"
-              placeholder="Μοιράσου κάτι με την ομάδα... (π.χ. μεταφορικά, μουσική, feedback)"
-              value={newPostText}
-              onChange={(e) => setNewPostText(e.target.value)}
-            ></textarea>
-            <div className="flex justify-end mt-3">
-              <button 
-                type="submit"
-                className="bg-purple-600 hover:bg-purple-500 text-white px-6 py-2 rounded-md font-medium transition-colors flex items-center space-x-2"
-              >
-                <Send size={18} />
-                <span>Post</span>
+    function App() {
+      const [currentView, setCurrentView] = useState('home');
+      const [events, setEvents] = useLocalStorage('df_events', INITIAL_EVENTS);
+      const [posts, setPosts] = useLocalStorage('df_posts', INITIAL_POSTS);
+      const [isAdmin, setIsAdmin] = useState(false);
+
+      const HomeView = () => (
+        <div className="flex flex-col items-center justify-center min-h-[80vh] text-center px-4">
+          <div className="mb-8 relative w-full max-w-4xl">
+            <h1 className="text-5xl md:text-8xl font-black tracking-tighter text-white uppercase relative z-10">
+              Enter The <br/>
+              <span className="text-transparent bg-clip-text bg-gradient-to-b from-green-300 via-green-500 to-emerald-800">Dark Forest</span>
+            </h1>
+          </div>
+          <p className="max-w-2xl text-lg md:text-xl text-gray-300 mb-12">Ένα underground δίκτυο αφιερωμένο στον ψυχεδελικό ήχο. Από τα σκοτεινά vibes της Forest μέχρι τα γρήγορα bpm της Darkpsy.</p>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <button onClick={() => setCurrentView('events')} className="px-8 py-5 bg-green-600 hover:bg-green-500 text-black font-black text-lg rounded-xl flex items-center justify-center space-x-2">
+              <span>Προσεχή Πάρτι</span><ChevronRight />
+            </button>
+            <button onClick={() => setCurrentView('community')} className="px-8 py-5 bg-[#111]/80 border border-purple-500/50 hover:bg-purple-900/40 text-white font-bold text-lg rounded-xl flex items-center justify-center space-x-2">
+              <span>Κοινότητα</span>
+            </button>
+          </div>
+        </div>
+      );
+
+      const EventsView = () => {
+        const [showForm, setShowForm] = useState(false);
+        const [newEvent, setNewEvent] = useState({ title: '', date: '', location: '', description: '', image: '' });
+
+        const handleImageUpload = (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => setNewEvent({ ...newEvent, image: reader.result });
+            reader.readAsDataURL(file);
+          }
+        };
+
+        const handleAddEvent = (e) => {
+          e.preventDefault();
+          setEvents([{ id: Date.now(), ...newEvent, image: newEvent.image || "https://images.unsplash.com/photo-1549834125-82d3c48159a3?auto=format&fit=crop&q=80&w=800" }, ...events]);
+          setShowForm(false); setNewEvent({ title: '', date: '', location: '', description: '', image: '' });
+        };
+
+        return (
+          <div className="py-12 px-4 max-w-7xl mx-auto">
+            <div className="flex justify-between items-center mb-12">
+              <h2 className="text-3xl font-black text-white border-l-8 border-green-500 pl-4 uppercase">Events & Flyers</h2>
+              <button onClick={() => setShowForm(!showForm)} className="px-6 py-3 rounded-xl bg-green-600/20 text-green-400 border border-green-500/50 flex items-center gap-2">
+                {showForm ? <X /> : <Plus />}<span>{showForm ? 'Ακύρωση' : 'Ανέβασμα'}</span>
               </button>
             </div>
-          </form>
-        </div>
-
-        {/* Posts Feed */}
-        <div className="space-y-4">
-          {posts.map(post => (
-            <div key={post.id} className={`p-6 rounded-xl border ${post.isAdmin ? 'bg-purple-900/20 border-purple-500/50' : 'bg-gray-900/40 border-gray-800'}`}>
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center space-x-3">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg ${post.isAdmin ? 'bg-purple-600 text-white' : 'bg-gray-700 text-green-400'}`}>
-                    {post.author.charAt(0)}
+            {showForm && (
+              <div className="bg-[#0a0f0c] border border-green-500/40 p-8 rounded-2xl mb-12">
+                <form onSubmit={handleAddEvent} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <input required type="text" placeholder="Τίτλος Party" className="bg-[#111] border border-gray-700 text-white rounded-xl p-4 w-full" value={newEvent.title} onChange={e => setNewEvent({...newEvent, title: e.target.value})} />
+                    <input required type="date" className="bg-[#111] border border-gray-700 text-white rounded-xl p-4 w-full" value={newEvent.date} onChange={e => setNewEvent({...newEvent, date: e.target.value})} />
                   </div>
-                  <div>
-                    <div className="text-white font-bold flex items-center space-x-2">
-                      <span>{post.author}</span>
-                      {post.isAdmin && <Zap size={14} className="text-purple-400" />}
-                    </div>
-                    <div className="text-xs text-gray-500 flex items-center">
-                      <Clock size={12} className="mr-1" />
-                      {post.time}
-                    </div>
+                  <input required type="text" placeholder="Τοποθεσία" className="bg-[#111] border border-gray-700 text-white rounded-xl p-4 w-full" value={newEvent.location} onChange={e => setNewEvent({...newEvent, location: e.target.value})} />
+                  <textarea required placeholder="Περιγραφή" className="bg-[#111] border border-gray-700 text-white rounded-xl p-4 w-full h-32" value={newEvent.description} onChange={e => setNewEvent({...newEvent, description: e.target.value})}></textarea>
+                  <input type="file" accept="image/*" className="text-white" onChange={handleImageUpload} />
+                  <button type="submit" className="w-full bg-green-600 text-black font-black py-4 rounded-xl flex justify-center gap-2"><Plus /> Δημοσίευση Event</button>
+                </form>
+              </div>
+            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+              {events.map(event => (
+                <div key={event.id} className="bg-[#080c09] border border-green-900/40 rounded-2xl overflow-hidden flex flex-col">
+                  <div className="h-72 bg-black relative">
+                    <img src={event.image} className="w-full h-full object-cover opacity-80" />
+                    <div className="absolute top-4 right-4 bg-black/80 text-green-400 px-4 py-2 rounded-xl border border-green-500/30 flex items-center gap-2"><Calendar />{new Date(event.date).toLocaleDateString('el-GR')}</div>
+                    {isAdmin && <button onClick={() => setEvents(events.filter(ev => ev.id !== event.id))} className="absolute top-4 left-4 bg-red-600 p-2 rounded-xl text-white"><Trash2 /></button>}
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-2xl font-black text-white mb-3">{event.title}</h3>
+                    <div className="flex items-center text-gray-400 mb-4 gap-2"><MapPin className="text-green-500" /><span>{event.location}</span></div>
+                    <p className="text-gray-400 mb-6">{event.description}</p>
                   </div>
                 </div>
-              </div>
-              <p className="text-gray-300 whitespace-pre-wrap">{post.text}</p>
+              ))}
             </div>
-          ))}
+          </div>
+        );
+      };
+
+      const CommunityView = () => {
+        const [newPostText, setNewPostText] = useState('');
+        const handleCreatePost = (e) => {
+          e.preventDefault();
+          if (!newPostText.trim()) return;
+          setPosts([{ id: Date.now(), author: isAdmin ? "Forest Admin" : "Anonymous Freak", text: newPostText, time: new Date().toISOString(), isAdmin, likes: 0, comments: [] }, ...posts]);
+          setNewPostText('');
+        };
+
+        return (
+          <div className="py-12 px-4 max-w-3xl mx-auto">
+            <h2 className="text-4xl font-black text-white border-l-8 border-purple-500 pl-4 mb-10 uppercase">Dark Forest Board</h2>
+            <div className="bg-[#0a050a] border border-purple-500/30 rounded-2xl p-6 mb-10">
+              <form onSubmit={handleCreatePost}>
+                <textarea className="w-full bg-[#111] border border-gray-700 rounded-xl p-5 text-white h-[120px]" placeholder="Μοιράσου κάτι..." value={newPostText} onChange={(e) => setNewPostText(e.target.value)}></textarea>
+                <div className="flex justify-between items-center mt-4">
+                  <span className="text-gray-500">{isAdmin ? 'Ποστάρεις ως Admin' : 'Ανώνυμη δημοσίευση'}</span>
+                  <button type="submit" className="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2"><Send /> Post</button>
+                </div>
+              </form>
+            </div>
+            <div className="space-y-6">
+              {posts.map(post => (
+                <div key={post.id} className={`p-6 rounded-2xl border ${post.isAdmin ? 'bg-purple-900/10 border-purple-500/40' : 'bg-[#0a0a0a] border-gray-800'}`}>
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="text-white font-bold text-lg flex items-center gap-2">{post.author} {post.isAdmin && <Zap />}</div>
+                    {isAdmin && <button onClick={() => setPosts(posts.filter(p => p.id !== post.id))} className="text-red-500 ml-auto"><Trash2 /></button>}
+                  </div>
+                  <p className="text-gray-300 text-lg mb-6">{post.text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      };
+
+      return (
+        <div>
+          <Background />
+          <Navbar currentView={currentView} setCurrentView={setCurrentView} />
+          <main className="relative z-10 pb-20">
+            {currentView === 'home' && <HomeView />}
+            {currentView === 'events' && <EventsView />}
+            {currentView === 'community' && <CommunityView />}
+          </main>
+          <ChatWidget isAdmin={isAdmin} />
+          <button onClick={() => setIsAdmin(!isAdmin)} className="fixed bottom-4 left-4 z-50 text-xs text-gray-400 bg-black p-2 border border-gray-700 rounded">
+            {isAdmin ? 'Exit Admin' : 'Admin Mode'}
+          </button>
         </div>
-      </div>
-    );
-  };
+      );
+    }
 
-  return (
-    <div className="min-h-screen text-gray-100 font-sans selection:bg-green-500 selection:text-black">
-      <Background />
-      <Navbar currentView={currentView} setCurrentView={setCurrentView} />
-      
-      <main className="relative z-10">
-        {currentView === 'home' && <HomeView />}
-        {currentView === 'events' && <EventsView />}
-        {currentView === 'community' && <CommunityView />}
-      </main>
-
-      <ChatWidget />
-    </div>
-  );
-}
-
+    // Το σημείο που "ενώνει" το React με το HTML
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
