@@ -2,30 +2,94 @@
 <html lang="el">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dark Forest Gathering</title>
     <style>
-        body { background: #050a07; color: white; font-family: sans-serif; margin: 0; padding: 20px; }
-        .container { max-width: 800px; margin: auto; text-align: center; }
-        h1 { color: #39ff14; text-transform: uppercase; }
-        .card { background: #111; border: 1px solid #333; padding: 20px; margin: 20px 0; border-radius: 10px; }
-        button { background: #39ff14; color: black; padding: 10px 20px; border: none; cursor: pointer; font-weight: bold; }
+        body { margin: 0; background: #050a07; color: #e2e8f0; font-family: sans-serif; min-height: 100vh; }
+        .container { width: 90%; max-width: 1200px; margin: auto; padding: 20px; }
+        header { text-align: center; padding: 40px 0; }
+        h1 { color: #39ff14; font-size: clamp(2rem, 8vw, 4rem); text-transform: uppercase; margin: 0; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: rgba(17, 17, 17, 0.7); border: 1px solid #333; padding: 20px; border-radius: 15px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; background: #000; color: white; border: 1px solid #39ff14; border-radius: 5px; box-sizing: border-box; }
+        button { background: #39ff14; color: black; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 5px; }
+        #admin-panel { display: none; margin-top: 20px; border: 2px solid #39ff14; padding: 20px; border-radius: 15px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Dark Forest Gathering</h1>
-        <p>Καλωσήρθες στο δάσος! Το σάιτ είναι ενεργό.</p>
-        
-        <div class="card">
-            <h3>Επόμενο Event</h3>
-            <p>Ritual of the Ancients - 25/07/2026</p>
-            <button onclick="alert('Ανέβασμα Flyer προσεχώς!')">Δείτε το Flyer</button>
-        </div>
-        
-        <div class="card">
-            <h3>Live Chat</h3>
-            <p>Σύνδεση με το Crew...</p>
-        </div>
+
+<div class="container">
+    <header>
+        <h1 id="displayTitle">Dark Forest</h1>
+        <button onclick="checkAdmin()">Admin Access</button>
+    </header>
+
+    <div id="admin-panel" class="card">
+        <h2>Admin Control Panel</h2>
+        <input type="text" id="titleInput" placeholder="Γράψε τον τίτλο του event...">
+        <input type="file" id="flyerInput" accept="image/*">
+        <button onclick="saveData()">Αποθήκευση Event</button>
+        <button onclick="clearData()" style="background: #ff3333;">Διαγραφή όλων</button>
     </div>
+
+    <div class="grid" id="flyerDisplay">
+        </div>
+</div>
+
+<script>
+    const ADMIN_PIN = "1234";
+
+    window.onload = loadData;
+
+    function checkAdmin() {
+        const input = prompt("Εισάγετε Admin PIN:");
+        if (input === ADMIN_PIN) {
+            document.getElementById('admin-panel').style.display = 'block';
+        } else {
+            alert("Λάθος PIN!");
+        }
+    }
+
+    function saveData() {
+        const title = document.getElementById('titleInput').value;
+        const file = document.getElementById('flyerInput').files[0];
+
+        if (title) localStorage.setItem('storedTitle', title);
+        
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                localStorage.setItem('storedFlyer', e.target.result);
+                loadData();
+            };
+            reader.readAsDataURL(file);
+        } else {
+            loadData();
+        }
+    }
+
+    function loadData() {
+        const title = localStorage.getItem('storedTitle') || "Dark Forest";
+        const flyer = localStorage.getItem('storedFlyer');
+        
+        document.getElementById('displayTitle').innerText = title;
+        const display = document.getElementById('flyerDisplay');
+
+        if (flyer) {
+            display.innerHTML = `
+                <div class="card">
+                    <h3>${title}</h3>
+                    <img src="${flyer}" style="width:100%; border-radius:10px;">
+                </div>
+            `;
+        }
+    }
+
+    function clearData() {
+        localStorage.clear();
+        location.reload();
+    }
+</script>
+
 </body>
 </html>
