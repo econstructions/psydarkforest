@@ -1,95 +1,303 @@
 <!DOCTYPE html>
-<html lang="el">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dark Forest Gathering</title>
+    <title>XENO-MORPHIC // Dark Psy Trance Collective</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Google Fonts for Psy-Cyberpunk Aesthetic -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
-        body { margin: 0; background: #050a07; color: #e2e8f0; font-family: sans-serif; min-height: 100vh; }
-        .container { width: 90%; max-width: 1200px; margin: auto; padding: 20px; }
-        header { text-align: center; padding: 40px 0; }
-        h1 { color: #39ff14; font-size: clamp(2rem, 8vw, 4rem); text-transform: uppercase; margin: 0; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .card { background: rgba(17, 17, 17, 0.7); border: 1px solid #333; padding: 20px; border-radius: 15px; }
-        input { width: 100%; padding: 10px; margin: 10px 0; background: #000; color: white; border: 1px solid #39ff14; border-radius: 5px; box-sizing: border-box; }
-        button { background: #39ff14; color: black; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 5px; }
-        #admin-panel { display: none; margin-top: 20px; border: 2px solid #39ff14; padding: 20px; border-radius: 15px; }
+        .font-display { font-family: 'Orbitron', sans-serif; }
+        .font-mono-custom { font-family: 'Share Tech Mono', monospace; }
+        /* Custom Neon Glow Text */
+        .neon-text {
+            text-shadow: 0 0 10px rgba(168, 85, 247, 0.6), 0 0 20px rgba(168, 85, 247, 0.4);
+        }
+        /* Acid Green Accent Glow */
+        .neon-border-acid:hover {
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
+            border-color: rgb(34, 197, 94);
+        }
     </style>
 </head>
-<body>
+<body class="bg-[#050508] text-gray-300 font-mono-custom selection:bg-purple-600 selection:text-white overflow-x-hidden">
 
-<div class="container">
-    <header>
-        <h1 id="displayTitle">Dark Forest</h1>
-        <button onclick="checkAdmin()">Admin Access</button>
+    <!-- Background Psychedelic Matrix Canvas -->
+    <canvas id="visualizerCanvas" class="fixed top-0 left-0 w-full h-full -z-10 opacity-20 pointer-events-none"></canvas>
+
+    <!-- Navigation Header -->
+    <header class="fixed top-0 left-0 w-full bg-[#050508]/80 backdrop-blur-md z-50 border-b border-purple-900/30">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="#" class="font-display font-800 text-xl tracking-[0.2em] text-white neon-text">XENO//MORPHIC</a>
+            <nav class="hidden md:flex space-x-8 tracking-widest text-sm">
+                <a href="#about" class="hover:text-green-400 transition-colors">// ABOUT</a>
+                <a href="#releases" class="hover:text-green-400 transition-colors">// RELEASES</a>
+                <a href="#events" class="hover:text-green-400 transition-colors">// RITUALS</a>
+                <a href="#booking" class="hover:text-green-400 transition-colors">// TRANSMISSION</a>
+            </nav>
+            <button class="md:hidden text-white" id="menuBtn">Menu</button>
+        </div>
     </header>
 
-    <div id="admin-panel" class="card">
-        <h2>Admin Control Panel</h2>
-        <input type="text" id="titleInput" placeholder="Γράψε τον τίτλο του event...">
-        <input type="file" id="flyerInput" accept="image/*">
-        <button onclick="saveData()">Αποθήκευση Event</button>
-        <button onclick="clearData()" style="background: #ff3333;">Διαγραφή όλων</button>
-    </div>
-
-    <div class="grid" id="flyerDisplay">
+    <!-- 1. Hero/Landing Section -->
+    <section class="relative min-h-screen flex flex-col justify-center items-center px-6 pt-20">
+        <div class="text-center max-w-3xl">
+            <p class="text-green-400 tracking-[0.4em] text-xs uppercase mb-4 font-display">Frequencies From The Void</p>
+            <h1 class="font-display font-800 text-5xl md:text-8xl tracking-tighter text-white uppercase leading-none mb-6">
+                DARK PSYCHEDELIC <span class="block text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-green-400 neon-text">SOUNDSCAPES</span>
+            </h1>
+            <p class="text-gray-400 max-w-xl mx-auto text-sm md:text-base tracking-wide mb-10">
+                A collective of sonic architects manipulating modular synthesis, rapid-fire transient arrays, and hyper-dimensional atmospheres. 150 - 180 BPM.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="#events" class="px-8 py-4 bg-purple-700 hover:bg-purple-600 text-white font-display text-xs tracking-widest font-bold uppercase transition-all duration-300 rounded shadow-lg shadow-purple-900/50">
+                    Find Upcoming Rituals
+                </a>
+                <a href="#releases" class="px-8 py-4 border border-purple-500/30 hover:border-green-400 text-white font-display text-xs tracking-widest font-bold uppercase transition-all duration-300 rounded">
+                    Listen To Releases
+                </a>
+            </div>
         </div>
-</div>
+        <div class="absolute bottom-10 animate-bounce text-xs tracking-widest text-purple-500 font-display">
+            SCROLL DOWN ↓
+        </div>
+    </section>
 
-<script>
-    const ADMIN_PIN = "1234";
+    <!-- 2. About Section -->
+    <section id="about" class="py-24 max-w-5xl mx-auto px-6 border-t border-purple-900/20">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div>
+                <span class="text-purple-500 text-xs tracking-widest block mb-2">[ ARCHITECTURE ]</span>
+                <h2 class="font-display text-3xl font-800 text-white mb-6">THE MIND BEHIND THE MACHINE</h2>
+                <p class="text-gray-400 leading-relaxed mb-4">
+                    Formed in late 2024, XENO-MORPHIC emerged as a reaction to predictable nightlife structures. We gather underground engineers specialized in the faster, cybernetic spectrum of psychedelic trance.
+                </p>
+                <p class="text-gray-400 leading-relaxed">
+                    Our missions span high-speed auditory distortion, nighttime forest frequencies, and immersive visual projection mappings designed to induce collective altered states.
+                </p>
+            </div>
+            <div class="bg-purple-950/20 border border-purple-500/20 p-8 rounded relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-2 bg-purple-500/10 text-purple-400 text-[10px] tracking-widest">SYS_STATUS: ACTIVE</div>
+                <h3 class="text-green-400 font-display text-lg mb-4">// CORE FREQUENCY MATRICES</h3>
+                <ul class="space-y-3 text-sm tracking-wide text-gray-300">
+                    <li class="flex items-center"><span class="text-purple-500 mr-2">■</span> 152 to 174 BPM baseline matrix</li>
+                    <li class="flex items-center"><span class="text-purple-500 mr-2">■</span> High-density algorithmic synthesis</li>
+                    <li class="flex items-center"><span class="text-purple-500 mr-2">■</span> Immersive custom quadraphonic setups</li>
+                </ul>
+            </div>
+        </div>
+    </section>
 
-    window.onload = loadData;
-
-    function checkAdmin() {
-        const input = prompt("Εισάγετε Admin PIN:");
-        if (input === ADMIN_PIN) {
-            document.getElementById('admin-panel').style.display = 'block';
-        } else {
-            alert("Λάθος PIN!");
-        }
-    }
-
-    function saveData() {
-        const title = document.getElementById('titleInput').value;
-        const file = document.getElementById('flyerInput').files[0];
-
-        if (title) localStorage.setItem('storedTitle', title);
-        
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                localStorage.setItem('storedFlyer', e.target.result);
-                loadData();
-            };
-            reader.readAsDataURL(file);
-        } else {
-            loadData();
-        }
-    }
-
-    function loadData() {
-        const title = localStorage.getItem('storedTitle') || "Dark Forest";
-        const flyer = localStorage.getItem('storedFlyer');
-        
-        document.getElementById('displayTitle').innerText = title;
-        const display = document.getElementById('flyerDisplay');
-
-        if (flyer) {
-            display.innerHTML = `
-                <div class="card">
-                    <h3>${title}</h3>
-                    <img src="${flyer}" style="width:100%; border-radius:10px;">
+    <!-- 3. Discography / Releases Section -->
+    <section id="releases" class="py-24 bg-[#08080d] border-t border-b border-purple-900/20">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="mb-12 flex justify-between items-end">
+                <div>
+                    <span class="text-purple-500 text-xs tracking-widest block mb-2">[ SONIC RELEASES ]</span>
+                    <h2 class="font-display text-3xl font-800 text-white">LATEST AUDITORY MUTATIONS</h2>
                 </div>
-            `;
+                <a href="#" class="text-green-400 text-xs tracking-widest hover:underline">VIEW ALL DISCOGRAPHY →</a>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Track 1 Box -->
+                <div class="bg-[#050508] border border-purple-900/40 p-5 rounded hover:border-purple-500 transition-all duration-300">
+                    <div class="w-full aspect-square bg-purple-900/20 mb-4 rounded relative overflow-hidden flex items-center justify-center border border-purple-500/10">
+                        <!-- Simulated Album Art Cover -->
+                        <span class="text-[10px] text-purple-400/50 absolute tracking-widest">ART_WORK_PLACEHOLDER</span>
+                    </div>
+                    <span class="text-[10px] bg-purple-950 text-purple-400 px-2 py-0.5 rounded uppercase tracking-wider">LP // 164 BPM</span>
+                    <h3 class="font-display text-white mt-3 text-lg">NEURAL GLITCH PROTOCOL</h3>
+                    <p class="text-gray-500 text-xs mb-4 font-mono-custom">Released via Hyperdrive Records</p>
+                    <iframe width="100%" height="120" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/499311654&color=%23a855f7&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false"></iframe>
+                </div>
+
+                <!-- Track 2 Box -->
+                <div class="bg-[#050508] border border-purple-900/40 p-5 rounded hover:border-purple-500 transition-all duration-300">
+                    <div class="w-full aspect-square bg-purple-900/20 mb-4 rounded relative overflow-hidden flex items-center justify-center border border-purple-500/10">
+                        <span class="text-[10px] text-purple-400/50 absolute tracking-widest">ART_WORK_PLACEHOLDER</span>
+                    </div>
+                    <span class="text-[10px] bg-green-950 text-green-400 px-2 py-0.5 rounded uppercase tracking-wider">EP // 156 BPM</span>
+                    <h3 class="font-display text-white mt-3 text-lg">CYBERNETIC RITUALS</h3>
+                    <p class="text-gray-500 text-xs mb-4 font-mono-custom">Self-Released / Bandcamp</p>
+                    <iframe width="100%" height="120" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/275323932&color=%2322c55e&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false"></iframe>
+                </div>
+
+                <!-- Track 3 Box -->
+                <div class="bg-[#050508] border border-purple-900/40 p-5 rounded hover:border-purple-500 transition-all duration-300">
+                    <div class="w-full aspect-square bg-purple-900/20 mb-4 rounded relative overflow-hidden flex items-center justify-center border border-purple-500/10">
+                        <span class="text-[10px] text-purple-400/50 absolute tracking-widest">ART_WORK_PLACEHOLDER</span>
+                    </div>
+                    <span class="text-[10px] bg-purple-950 text-purple-400 px-2 py-0.5 rounded uppercase tracking-wider">SINGLE // 170 BPM</span>
+                    <h3 class="font-display text-white mt-3 text-lg">SUB-ATOMIC DISTORTION</h3>
+                    <p class="text-gray-500 text-xs mb-4 font-mono-custom">VA // Shamanic Chaos Compiler</p>
+                    <iframe width="100%" height="120" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/314112250&color=%23a855f7&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false"></iframe>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. Events / Tour Dates Section -->
+    <section id="events" class="py-24 max-w-5xl mx-auto px-6">
+        <div class="mb-12">
+            <span class="text-purple-500 text-xs tracking-widest block mb-2">[ TEMPORAL GATHERINGS ]</span>
+            <h2 class="font-display text-3xl font-800 text-white">UPCOMING RITUAL CYCLES</h2>
+        </div>
+
+        <div class="space-y-4">
+            <!-- Event 1 Row -->
+            <div class="bg-purple-950/10 border border-purple-900/30 p-6 rounded flex flex-col md:flex-row justify-between items-start md:items-center gap-6 hover:bg-purple-950/20 transition-all duration-300 neon-border-acid">
+                <div class="flex items-center gap-6">
+                    <div class="text-center bg-[#050508] px-4 py-2 border border-purple-500/20 rounded">
+                        <p class="text-green-400 font-display font-800 text-xl">OCT 16</p>
+                        <p class="text-[10px] tracking-wider text-gray-500">2026</p>
+                    </div>
+                    <div>
+                        <h3 class="font-display text-white text-lg tracking-wide">KINETIC CHAOS VOL. IV</h3>
+                        <p class="text-sm text-gray-400">The Underworld Reactor Hub — Berlin, DE</p>
+                    </div>
+                </div>
+                <div class="w-full md:w-auto flex items-center justify-between md:justify-end gap-6">
+                    <span class="text-xs text-purple-400 tracking-widest">[ 160-175 BPM SPECTRUM ]</span>
+                    <a href="#" class="px-5 py-2.5 bg-green-600 hover:bg-green-500 text-[#050508] font-display text-xs font-bold tracking-widest uppercase transition-colors rounded">
+                        SECURE TICKETS
+                    </a>
+                </div>
+            </div>
+
+            <!-- Event 2 Row -->
+            <div class="bg-purple-950/10 border border-purple-900/30 p-6 rounded flex flex-col md:flex-row justify-between items-start md:items-center gap-6 hover:bg-purple-950/20 transition-all duration-300 neon-border-acid">
+                <div class="flex items-center gap-6">
+                    <div class="text-center bg-[#050508] px-4 py-2 border border-purple-500/20 rounded">
+                        <p class="text-green-400 font-display font-800 text-xl">NOV 03</p>
+                        <p class="text-[10px] tracking-wider text-gray-500">2026</p>
+                    </div>
+                    <div>
+                        <h3 class="font-display text-white text-lg tracking-wide">PSYCHO-KINETIC ASSEMBLY</h3>
+                        <p class="text-sm text-gray-400">Neo-Hangar 7 — Prague, CZ</p>
+                    </div>
+                </div>
+                <div class="w-full md:w-auto flex items-center justify-between md:justify-end gap-6">
+                    <span class="text-xs text-purple-400 tracking-widest">[ MODULAR LIVE AUDIO ]</span>
+                    <a href="#" class="px-5 py-2.5 bg-green-600 hover:bg-green-500 text-[#050508] font-display text-xs font-bold tracking-widest uppercase transition-colors rounded">
+                        SECURE TICKETS
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. Booking & Transmission Form -->
+    <section id="booking" class="py-24 bg-[#08080d] border-t border-purple-900/20">
+        <div class="max-w-3xl mx-auto px-6">
+            <div class="text-center mb-12">
+                <span class="text-purple-500 text-xs tracking-widest block mb-2">[ INITIATE FREQUENCY GAP ]</span>
+                <h2 class="font-display text-3xl font-800 text-white mb-4">BOOKING & SIGNAL CHANNELS</h2>
+                <p class="text-gray-400 text-sm">For bookings, label submittals, or portal connections, broadcast your request below.</p>
+            </div>
+
+            <form class="space-y-6" onsubmit="event.preventDefault(); alert('Transmission broadcasted successfully.');">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-xs uppercase tracking-widest text-gray-400 mb-2">// IDENTITY OR AGENCY</label>
+                        <input type="text" required class="w-full bg-[#050508] border border-purple-900/40 rounded px-4 py-3 text-sm focus:outline-none focus:border-green-400 transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase tracking-widest text-gray-400 mb-2">// DIGITAL MAILBOX</label>
+                        <input type="email" required class="w-full bg-[#050508] border border-purple-900/40 rounded px-4 py-3 text-sm focus:outline-none focus:border-green-400 transition-colors">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs uppercase tracking-widest text-gray-400 mb-2">// CHANNELS REQUIRED</label>
+                    <select class="w-full bg-[#050508] border border-purple-900/40 rounded px-4 py-3 text-sm focus:outline-none focus:border-green-400 transition-colors text-gray-400">
+                        <option>Full Collective Booking (Audio + Visual System)</option>
+                        <option>Individual Artist Performance</option>
+                        <option>Visual Projection Mapping System</option>
+                        <option>General Transmission/Inquiry</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs uppercase tracking-widest text-gray-400 mb-2">// TRANSMISSION SCROLL (DETAILS)</label>
+                    <textarea rows="5" required class="w-full bg-[#050508] border border-purple-900/40 rounded px-4 py-3 text-sm focus:outline-none focus:border-green-400 transition-colors"></textarea>
+                </div>
+                <button type="submit" class="w-full py-4 bg-transparent border-2 border-purple-500 text-white hover:bg-purple-500 hover:text-black font-display font-bold text-xs tracking-[0.3em] uppercase transition-all duration-300 rounded cursor-pointer">
+                    BROADCAST TRANSMISSION
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer System & Social Gateways -->
+    <footer class="bg-[#050508] border-t border-purple-900/20 py-12 text-center text-xs tracking-widest text-gray-500">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-6">
+            <p>© 2026 XENO-MORPHIC. SECURE AUDITORY INFRASTRUCTURE.</p>
+            <div class="flex space-x-6 text-gray-400">
+                <a href="#" class="hover:text-green-400 transition-colors">SOUNDCLOUD</a>
+                <a href="#" class="hover:text-green-400 transition-colors">BANDCAMP</a>
+                <a href="#" class="hover:text-green-400 transition-colors">INSTAGRAM</a>
+                <a href="#" class="hover:text-green-400 transition-colors">DISCORD</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript code for Dynamic Mathematical Canvas Background Matrix -->
+    <script>
+        const canvas = document.getElementById('visualizerCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         }
-    }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
 
-    function clearData() {
-        localStorage.clear();
-        location.reload();
-    }
-</script>
+        // Particle configuration simulating digital psy-waves
+        let particles = [];
+        for(let i = 0; i < 40; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                radius: Math.random() * 2 + 1,
+                speedX: (Math.random() - 0.5) * 0.8,
+                speedY: (Math.random() - 0.5) * 0.8
+            });
+        }
 
+        function drawMatrix() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'rgba(168, 85, 247, 0.4)';
+            ctx.strokeStyle = 'rgba(34, 197, 94, 0.08)';
+
+            particles.forEach((p, index) => {
+                p.x += p.speedX;
+                p.y += p.speedY;
+
+                if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Create geometric vector arrays connecting lines
+                for(let j = index + 1; j < particles.length; j++) {
+                    const dist = Math.hypot(p.x - particles[j].x, p.y - particles[j].y);
+                    if(dist < 180) {
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            });
+            requestAnimationFrame(drawMatrix);
+        }
+        drawMatrix();
+    </script>
 </body>
 </html>
